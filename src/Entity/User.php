@@ -9,6 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\Table(name="users")
  */
 class User implements UserInterface
 {
@@ -33,15 +34,21 @@ class User implements UserInterface
 
     /**
      * @var string The hashed password
-     * @ORM\Column(type="string", name="password")
+     * @ORM\Column(type="string", name="password", nullable=true)
      */
     private $password;
 
     /**
      * @var Collection
-     * @ORM\OneToMany(targetEntity="App\Entity\Token", mappedBy="usr", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Token", mappedBy="usr",
+     *     cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private $tokens;
+
+    /**
+     * @ORM\Column(type="boolean", name="permanent")
+     */
+    private $permanent = false;
 
     public function __construct()
     {
@@ -79,7 +86,7 @@ class User implements UserInterface
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
-        return array_unique($roles);
+        return \array_unique($roles);
     }
 
     public function setRoles(array $roles): self
@@ -133,7 +140,7 @@ class User implements UserInterface
     {
         if (!$this->tokens->contains($token)) {
             $this->tokens[] = $token;
-            $token->setUsr($this);
+            $token->setUser($this);
         }
 
         return $this;
@@ -144,10 +151,22 @@ class User implements UserInterface
         if ($this->tokens->contains($token)) {
             $this->tokens->removeElement($token);
             // set the owning side to null (unless already changed)
-            if ($token->getUsr() === $this) {
-                $token->setUsr(null);
+            if ($token->getUser() === $this) {
+                $token->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPermanent(): bool
+    {
+        return $this->permanent;
+    }
+
+    public function setPermanent(bool $permanent): self
+    {
+        $this->permanent = $permanent;
 
         return $this;
     }

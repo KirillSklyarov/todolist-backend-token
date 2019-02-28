@@ -19,6 +19,26 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    /**
+     * @param User $user
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Exception
+     */
+    public function create(User $user)
+    {
+        $em = $this->getEntityManager();
+        $em->getConnection()->beginTransaction(); // suspend auto-commit
+        try {
+            $em->persist($user);
+            $em->flush($user);
+            $em->refresh($user);
+            $em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $em->getConnection()->rollBack();
+
+            throw $e;
+        }
+    }
     // /**
     //  * @return User[] Returns an array of User objects
     //  */

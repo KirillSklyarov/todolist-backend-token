@@ -19,6 +19,26 @@ class TokenRepository extends ServiceEntityRepository
         parent::__construct($registry, Token::class);
     }
 
+    /**
+     * @param Token $token
+     * @throws \Exception
+     */
+    public function create(Token $token)
+    {
+        $em = $this->getEntityManager();
+        $em->getConnection()->beginTransaction(); // suspend auto-commit
+        try {
+            $em->persist($token);
+            $em->flush($token);
+            $em->refresh($token);
+            $em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $em->getConnection()->rollBack();
+
+            throw $e;
+        }
+    }
+
     // /**
     //  * @return Token[] Returns an array of Token objects
     //  */

@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TokenRepository")
+ * @ORM\Table(name="tokens")
  */
 class Token
 {
@@ -36,9 +37,9 @@ class Token
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="tokens")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, name="user_id")
      */
-    private $usr;
+    private $user;
 
     public function getId(): ?int
     {
@@ -81,14 +82,14 @@ class Token
         return $this;
     }
 
-    public function getUsr(): ?User
+    public function getUser(): ?User
     {
-        return $this->usr;
+        return $this->user;
     }
 
-    public function setUsr(?User $usr): self
+    public function setUser(?User $user): self
     {
-        $this->usr = $usr;
+        $this->user = $user;
 
         return $this;
     }
