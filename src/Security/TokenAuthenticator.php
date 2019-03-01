@@ -151,7 +151,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         }
 
         $ttl = $this->bag->get($user->getPermanent() ? 'token.registered.ttl' : 'token.unregistered.ttl');
-        $lastLoginAt = $token->getLastLoginAt();
+        $lastLoginAt = $token->getLastEnterAt();
         $expiredAt = clone $lastLoginAt;
         $expiredAt->add(new \DateInterval($ttl));
         $now = new \DateTime();
@@ -161,7 +161,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         }
         $ip = $this->request->getClientIp();
         $userAgent = $this->request->headers->get('user-agent');
-        $token->setLastLoginAt($now)
+        $token->setLastEnterAt($now)
             ->setIp(\mb_substr($ip, 0, 39))
             ->setUserAgent(\mb_substr($userAgent, 0, 255));
         $this->tokenRepository->update($token);

@@ -31,9 +31,9 @@ class Token
 
     /**
      * @var \DateTime|null
-     * @ORM\Column(type="datetime", name="last_login_at")
+     * @ORM\Column(type="datetime", name="last_enter_at")
      */
-    private $lastLoginAt;
+    private $lastEnterAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="tokens")
@@ -80,14 +80,14 @@ class Token
         return $this;
     }
 
-    public function getLastLoginAt(): ?\DateTime
+    public function getLastEnterAt(): ?\DateTime
     {
-        return $this->lastLoginAt;
+        return $this->lastEnterAt;
     }
 
-    public function setLastLoginAt(\DateTime $lastLoginAt): self
+    public function setLastEnterAt(\DateTime $lastEnterAt): self
     {
-        $this->lastLoginAt = $lastLoginAt;
+        $this->lastEnterAt = $lastEnterAt;
 
         return $this;
     }

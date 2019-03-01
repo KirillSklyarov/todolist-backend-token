@@ -34,7 +34,7 @@ class UserController extends AbstractController
         $token = (new Token())
             ->setValue(Uuid::uuid4()->toString())
             ->setCreatedAt($now)
-            ->setLastLoginAt($now);
+            ->setLastEnterAt($now);
         $user = (new User())
             ->setUsername(Uuid::uuid4()->toString())
             ->addToken($token);
