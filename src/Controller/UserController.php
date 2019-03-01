@@ -41,7 +41,7 @@ class UserController extends AbstractController
         $user->addToken($token);
         $repository->create($user);
         $response = new JsonResponse();
-        $ttl = $this->getParameter('token.unregistred.ttl');
+        $ttl = $this->getParameter('token.unregistered.ttl');
         $expire = clone $now;
         $expire->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expire);

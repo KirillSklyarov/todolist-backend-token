@@ -46,6 +46,11 @@ class User implements UserInterface
     private $tokens;
 
     /**
+     * @var Token|null
+     */
+    private $currentToken;
+
+    /**
      * @ORM\Column(type="boolean", name="permanent")
      */
     private $permanent = false;
@@ -168,6 +173,24 @@ class User implements UserInterface
     {
         $this->permanent = $permanent;
 
+        return $this;
+    }
+
+    /**
+     * @return Token|null
+     */
+    public function getCurrentToken(): ?Token
+    {
+        return $this->currentToken;
+    }
+
+    /**
+     * @param Token|null $currentToken
+     * @return User
+     */
+    public function setCurrentToken(?Token $currentToken): User
+    {
+        $this->currentToken = $currentToken;
         return $this;
     }
 }

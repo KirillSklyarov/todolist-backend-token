@@ -24,13 +24,13 @@ class Token
     private $value;
 
     /**
-     * @var \DateTimeInterface|null
+     * @var \DateTime|null
      * @ORM\Column(type="datetime", name="created_at")
      */
     private $createdAt;
 
     /**
-     * @var \DateTimeInterface|null
+     * @var \DateTime|null
      * @ORM\Column(type="datetime", name="last_login_at")
      */
     private $lastLoginAt;
@@ -58,24 +58,24 @@ class Token
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(\DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getLastLoginAt(): ?\DateTimeInterface
+    public function getLastLoginAt(): ?\DateTime
     {
         return $this->lastLoginAt;
     }
 
-    public function setLastLoginAt(\DateTimeInterface $lastLoginAt): self
+    public function setLastLoginAt(\DateTime $lastLoginAt): self
     {
         $this->lastLoginAt = $lastLoginAt;
 

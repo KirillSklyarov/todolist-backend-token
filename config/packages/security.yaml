@@ -1,4 +1,9 @@
 security:
+    role_hierarchy:
+        ROLE_UNREGISTRED_USER:  ROLE_USER
+        ROLE_REGISTRED_USER:    ROLE_USER
+        ROLE_ADMIN:             [ROLE_UNREGISTRED_USER, ROLE_REGISTRED_USER]
+
     encoders:
         App\Entity\User:
             algorithm: argon2i
@@ -14,8 +19,17 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
+        init:
+            pattern:  ^/api/v1/user/init
+            stateless: true
             anonymous: true
+
+        api:
+            pattern:   ^/api
+            stateless: true
+            guard:
+                authenticators:
+                    - 'App\Security\TokenAuthenticator'
 
             # activate different ways to authenticate
 
@@ -28,5 +42,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/v1/user/init, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/user/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/api/v1/user/register, roles: ROLE_UNREGISTRED_USER }
+#        - { path: ^/api/v1/user/logout, roles: ROLE_USER }
+        - { path: ^/api/v1, roles: ROLE_USER }
