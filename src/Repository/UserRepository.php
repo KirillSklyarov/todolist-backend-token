@@ -39,6 +39,47 @@ class UserRepository extends ServiceEntityRepository
             throw $e;
         }
     }
+
+    /**
+     * @param User $user
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Exception
+     */
+    public function update(User $user)
+    {
+        $em = $this->getEntityManager();
+        $em->getConnection()->beginTransaction(); // suspend auto-commit
+        try {
+            $em->merge($user);
+            $em->flush($user);
+            $em->refresh($user);
+            $em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $em->getConnection()->rollBack();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @param User $user
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Exception
+     */
+    public function delete(User $user)
+    {
+        $em = $this->getEntityManager();
+        $em->getConnection()->beginTransaction(); // suspend auto-commit
+        try {
+            $em->remove($user);
+            $em->flush($user);
+            $em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $em->getConnection()->rollBack();
+
+            throw $e;
+        }
+    }
     // /**
     //  * @return User[] Returns an array of User objects
     //  */

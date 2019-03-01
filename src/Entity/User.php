@@ -40,8 +40,8 @@ class User implements UserInterface
 
     /**
      * @var Collection
-     * @ORM\OneToMany(targetEntity="App\Entity\Token", mappedBy="usr",
-     *     cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Token", mappedBy="user",
+     *     cascade={"persist"}, orphanRemoval=true)
      */
     private $tokens;
 

@@ -63,9 +63,10 @@ class AuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterf
             ->setValue(Uuid::uuid4()->toString())
             ->setCreatedAt($now)
             ->setLastEnterAt($now);
-        $this->tokenRepository->create($token);
         $user->addToken($token);
         $user->setCurrentToken($token);
+//        $this->tokenRepository->create($token);
+        $this->userRepository->update($user);
         $data = [
             'success' => true,
             'message' => 'oh, yeah!',
