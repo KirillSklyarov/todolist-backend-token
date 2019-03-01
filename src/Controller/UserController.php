@@ -22,15 +22,16 @@ class UserController extends AbstractController
     /**
      * @Route("/init", name="user_init", methods={"POST", "OPTIONS"})
      * @param EntityManagerInterface $em
+     * @param UserRepository $userRepository
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Exception
      */
-    public function init(EntityManagerInterface $em)
+    public function init(EntityManagerInterface $em, UserRepository $userRepository)
     {
         $now = new \DateTime();
         /** @var UserRepository $repository */
-        $repository = $em->getRepository(User::class);
+//        $repository = $em->getRepository(User::class);
         $token = (new Token())
             ->setValue(Uuid::uuid4()->toString())
             ->setCreatedAt($now)
@@ -39,7 +40,7 @@ class UserController extends AbstractController
             ->setUsername(Uuid::uuid4()->toString())
             ->addToken($token);
         $user->addToken($token);
-        $repository->create($user);
+        $userRepository->create($user);
         $response = new JsonResponse();
         $ttl = $this->getParameter('token.unregistered.ttl');
         $expire = clone $now;
@@ -47,5 +48,10 @@ class UserController extends AbstractController
         $cookie = new Cookie('token', $token->getValue(), $expire);
         $response->headers->setCookie($cookie);
         return $response;
+    }
+
+    // TODO register
+    public function register() {
+
     }
 }

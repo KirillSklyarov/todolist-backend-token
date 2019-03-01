@@ -24,6 +24,15 @@ security:
             stateless: true
             anonymous: true
 
+        login:
+            pattern:  ^/api/v1/user/login
+            stateless: true
+            anonymous: true
+            json_login:
+                check_path:               /api/v1/user/login
+                success_handler:          'App\Security\AuthenticationSuccessHandler'
+                failure_handler:          'App\Security\AuthenticationFailureHandler'
+
         api:
             pattern:   ^/api
             stateless: true
