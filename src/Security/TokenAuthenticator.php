@@ -12,6 +12,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -22,6 +23,11 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 class TokenAuthenticator extends AbstractGuardAuthenticator
 {
     /**
+     * @var Request
+     */
+    private $request;
+
+    /**
      * @var ParameterBagInterface
      */
     private $bag;
@@ -31,9 +37,11 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      */
     private $tokenRepository;
 
-    public function __construct(ParameterBagInterface $bag,
+    public function __construct(RequestStack $requestStack,
+                                ParameterBagInterface $bag,
                                 TokenRepository $tokenRepository)
     {
+        $this->request = $requestStack->getCurrentRequest();
         $this->bag = $bag;
         $this->tokenRepository = $tokenRepository;
     }
@@ -151,7 +159,11 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
             $this->tokenRepository->delete($token);
             return null;
         }
-        $token->setLastLoginAt($now);
+        $ip = $this->request->getClientIp();
+        $userAgent = $this->request->headers->get('user-agent');
+        $token->setLastLoginAt($now)
+            ->setIp(\mb_substr($ip, 0, 39))
+            ->setUserAgent(\mb_substr($userAgent, 0, 255));
         $this->tokenRepository->update($token);
         $user->setCurrentToken($token);
         return $user;

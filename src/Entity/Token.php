@@ -41,6 +41,16 @@ class Token
      */
     private $user;
 
+    /**
+     * @ORM\Column(type="string", name="user_agent", length=255, nullable=true)
+     */
+    private $userAgent;
+
+    /**
+     * @ORM\Column(type="string", name="ip", length=39, nullable=true)
+     */
+    private $ip;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +100,30 @@ class Token
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getUserAgent(): ?string
+    {
+        return $this->userAgent;
+    }
+
+    public function setUserAgent(?string $userAgent): self
+    {
+        $this->userAgent = $userAgent;
+
+        return $this;
+    }
+
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+
+    public function setIp(?string $ip): self
+    {
+        $this->ip = $ip;
 
         return $this;
     }
