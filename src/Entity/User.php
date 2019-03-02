@@ -71,6 +71,11 @@ class User implements UserInterface
     private $updatedAt;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Item", mappedBy="user", orphanRemoval=true)
+     */
+    private $items;
+
+    /**
      * User constructor.
      * @throws \Exception
      */
@@ -78,6 +83,7 @@ class User implements UserInterface
     {
         $this->createdAt = new \DateTime();
         $this->tokens = new ArrayCollection();
+        $this->items = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -283,6 +289,37 @@ class User implements UserInterface
     public function setUpdatedAt(\DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Item[]
+     */
+    public function getItems(): Collection
+    {
+        return $this->items;
+    }
+
+    public function addItem(Item $item): self
+    {
+        if (!$this->items->contains($item)) {
+            $this->items[] = $item;
+            $item->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeItem(Item $item): self
+    {
+        if ($this->items->contains($item)) {
+            $this->items->removeElement($item);
+            // set the owning side to null (unless already changed)
+            if ($item->getUser() === $this) {
+                $item->setUser(null);
+            }
+        }
 
         return $this;
     }
