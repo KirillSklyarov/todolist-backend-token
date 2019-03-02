@@ -59,13 +59,24 @@ class AuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterf
 
         /** @var User $user */
         $user = $sfToken->getUser();
+        $cookies = $request->cookies;
+        $value = $cookies->get('token');
+        if (Uuid::isValid($value)) {
+            $oldToken = $this->tokenRepository->findOneBy(['value' => $value]);
+            if ($oldToken) {
+                $this->tokenRepository->delete($oldToken);
+            }
+        }
+        $ip = $request->getClientIp();
+        $userAgent = $request->headers->get('user-agent');
         $token = (new Token())
             ->setValue(Uuid::uuid4()->toString())
             ->setCreatedAt($now)
-            ->setLastEnterAt($now);
+            ->setLastEnterAt($now)
+            ->setIp(\mb_substr($ip, 0, 39))
+            ->setUserAgent(\mb_substr($userAgent, 0, 255));
         $user->addToken($token);
         $user->setCurrentToken($token);
-//        $this->tokenRepository->create($token);
         $this->userRepository->update($user);
         $data = [
             'success' => true,

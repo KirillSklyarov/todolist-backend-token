@@ -151,8 +151,8 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         }
 
         $ttl = $this->bag->get($user->getPermanent() ? 'token.registered.ttl' : 'token.unregistered.ttl');
-        $lastLoginAt = $token->getLastEnterAt();
-        $expiredAt = clone $lastLoginAt;
+        $lastEnterAt = $token->getLastEnterAt();
+        $expiredAt = clone $lastEnterAt;
         $expiredAt->add(new \DateInterval($ttl));
         $now = new \DateTime();
         if ($expiredAt <= $now) {
