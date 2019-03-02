@@ -22,13 +22,13 @@ class Token
 
     /**
      * @var string
-     * @ORM\Column(type="guid", name="value")
+     * @ORM\Column(type="guid", name="value", unique=true)
      */
     private $value;
 
     /**
      * @var string
-     * @ORM\Column(type="guid", name="alias")
+     * @ORM\Column(type="guid", name="alias", unique=true)
      */
     private $alias;
 
