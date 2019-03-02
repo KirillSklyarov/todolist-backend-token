@@ -59,28 +59,27 @@ class UserController extends AbstractController
 
     /**
      * @Route("/init", name="user_init", methods={"POST", "OPTIONS"})
+     * @param Request $request
      * @param UserRepository $userRepository
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Exception
      */
-    public function init(UserRepository $userRepository)
+    public function init(Request $request, UserRepository $userRepository)
     {
-        $now = new \DateTime();
-        /** @var UserRepository $repository */
+        $ip = $request->getClientIp();
+        $userAgent = $request->headers->get('user-agent');
         $token = (new Token())
-            ->setValue(Uuid::uuid4()->toString())
-            ->setCreatedAt($now)
-            ->setLastEnterAt($now);
+            ->setIp($ip)
+            ->setUserAgent($userAgent);
         $user = (new User())
-            ->setCreatedAt($now)
             ->setUsername(Uuid::uuid4()->toString())
             ->addToken($token);
-        $user->addToken($token);
         $userRepository->create($user);
         $response = new JsonResponse();
         $ttl = $this->getParameter('token.unregistered.ttl');
-        $expire = clone $now;
+        $createdAt = $token->getCreatedAt();
+        $expire = clone $createdAt;
         $expire->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expire);
         $response->headers->setCookie($cookie);
@@ -108,7 +107,7 @@ class UserController extends AbstractController
         ];
         $errors = $this->validate($input);
         if (\count($errors) > 0) {
-            throw new BadRequestHttpException();
+            throw new BadRequestHttpException((string)$errors);
         }
         $existentUser = $userRepository->findOneBy(['username' => $input['username']]);
         if ($existentUser) {
@@ -116,14 +115,11 @@ class UserController extends AbstractController
         }
         $ip = $request->getClientIp();
         $userAgent = $request->headers->get('user-agent');
-        $now = new \DateTime();
         $token = (new Token())
-            ->setValue(Uuid::uuid4()->toString())
-            ->setCreatedAt($now)
-            ->setLastEnterAt($now)
-            ->setIp(\mb_substr($ip, 0, 39))
-            ->setUserAgent(\mb_substr($userAgent, 0, 255));
+            ->setIp($ip)
+            ->setUserAgent($userAgent);
         $encoded = $encoder->encodePassword($user, $input['password']);
+        $lastEnterAt = $token->getLastEnterAt();
 
         $user->clearTokens()
             ->addToken($token)
@@ -132,13 +128,12 @@ class UserController extends AbstractController
             ->removeRole('ROLE_UNREGISTERED_USER')
             ->addRole('ROLE_REGISTERED_USER')
             ->setPermanent(true)
-            ->setRegisteredAt($now)
-            ->setUpdatedAt($now)
-        ;
+            ->setRegisteredAt($lastEnterAt)
+            ->setUpdatedAt($lastEnterAt);
         $userRepository->update($user);
         $response = new JsonResponse();
         $ttl = $this->getParameter('token.unregistered.ttl');
-        $expire = clone $now;
+        $expire = clone $lastEnterAt;
         $expire->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expire);
         $response->headers->setCookie($cookie);
@@ -151,7 +146,8 @@ class UserController extends AbstractController
      * @return JsonResponse
      * @throws \Exception
      */
-    public function logout(TokenRepository $tokenRepository) {
+    public function logout(TokenRepository $tokenRepository)
+    {
         /** @var User $user */
         $user = $this->getUser();
         $token = $user->getCurrentToken();

@@ -70,8 +70,13 @@ class User implements UserInterface
      */
     private $updatedAt;
 
+    /**
+     * User constructor.
+     * @throws \Exception
+     */
     public function __construct()
     {
+        $this->createdAt = new \DateTime();
         $this->tokens = new ArrayCollection();
     }
 
@@ -246,7 +251,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

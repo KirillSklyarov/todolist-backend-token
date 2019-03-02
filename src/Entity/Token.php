@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
+
 // TODO Add index, refactor findOnBy
 // TODO Add field alias
 /**
@@ -25,18 +27,25 @@ class Token
     private $value;
 
     /**
-     * @var \DateTime|null
+     * @var string
+     * @ORM\Column(type="guid", name="alias")
+     */
+    private $alias;
+
+    /**
+     * @var \DateTime
      * @ORM\Column(type="datetime", name="created_at")
      */
     private $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTime
      * @ORM\Column(type="datetime", name="last_enter_at")
      */
     private $lastEnterAt;
 
     /**
+     * @var User
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="tokens")
      * @ORM\JoinColumn(nullable=false, name="user_id")
      */
@@ -52,12 +61,25 @@ class Token
      */
     private $ip;
 
+    /**
+     * Token constructor.
+     * @throws \Exception
+     */
+    public function __construct()
+    {
+        $now = new \DateTime();
+        $this->createdAt = $now;
+        $this->lastEnterAt = $now;
+        $this->value = Uuid::uuid4()->toString();
+        $this->alias = Uuid::uuid4()->toString();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getValue(): ?string
+    public function getValue(): string
     {
         return $this->value;
     }
@@ -69,7 +91,19 @@ class Token
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getAlias(): string
+    {
+        return $this->alias;
+    }
+
+    public function setAlias(string $alias): self
+    {
+        $this->alias = $alias;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -81,7 +115,7 @@ class Token
         return $this;
     }
 
-    public function getLastEnterAt(): ?\DateTime
+    public function getLastEnterAt(): \DateTime
     {
         return $this->lastEnterAt;
     }
@@ -112,6 +146,9 @@ class Token
 
     public function setUserAgent(?string $userAgent): self
     {
+        if ($userAgent !== null) {
+            $userAgent = \mb_substr($userAgent, 0, 255);
+        }
         $this->userAgent = $userAgent;
 
         return $this;
@@ -124,6 +161,9 @@ class Token
 
     public function setIp(?string $ip): self
     {
+        if ($ip !== null) {
+            $ip = \mb_substr($ip, 0, 39);
+        }
         $this->ip = $ip;
 
         return $this;

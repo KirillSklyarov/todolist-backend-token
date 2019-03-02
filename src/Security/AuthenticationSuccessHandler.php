@@ -70,11 +70,8 @@ class AuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterf
         $ip = $request->getClientIp();
         $userAgent = $request->headers->get('user-agent');
         $token = (new Token())
-            ->setValue(Uuid::uuid4()->toString())
-            ->setCreatedAt($now)
-            ->setLastEnterAt($now)
-            ->setIp(\mb_substr($ip, 0, 39))
-            ->setUserAgent(\mb_substr($userAgent, 0, 255));
+            ->setIp($ip)
+            ->setUserAgent($userAgent);
         $user->addToken($token);
         $user->setCurrentToken($token);
         $this->userRepository->update($user);
