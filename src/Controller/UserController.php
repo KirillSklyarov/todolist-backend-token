@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Token;
 use App\Entity\User;
+use App\Repository\TokenRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
@@ -58,17 +59,15 @@ class UserController extends AbstractController
 
     /**
      * @Route("/init", name="user_init", methods={"POST", "OPTIONS"})
-     * @param EntityManagerInterface $em
      * @param UserRepository $userRepository
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Exception
      */
-    public function init(EntityManagerInterface $em, UserRepository $userRepository)
+    public function init(UserRepository $userRepository)
     {
         $now = new \DateTime();
         /** @var UserRepository $repository */
-//        $repository = $em->getRepository(User::class);
         $token = (new Token())
             ->setValue(Uuid::uuid4()->toString())
             ->setCreatedAt($now)
@@ -88,14 +87,13 @@ class UserController extends AbstractController
         return $response;
     }
 
-    // TODO register
-
     /**
      * @Route("/register", name="user_regiter", methods={"POST", "OPTIONS"})
      * @param Request $request
      * @param UserRepository $userRepository
      * @param UserPasswordEncoderInterface $encoder
      *
+     * @return JsonResponse
      * @throws \Exception
      */
     public function register(Request $request,
@@ -144,6 +142,22 @@ class UserController extends AbstractController
         $expire->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expire);
         $response->headers->setCookie($cookie);
+        return $response;
+    }
+
+    /**
+     * @Route("/logout", name="user_logout", methods={"POST", "OPTIONS"})
+     * @param TokenRepository $tokenRepository
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function logout(TokenRepository $tokenRepository) {
+        /** @var User $user */
+        $user = $this->getUser();
+        $token = $user->getCurrentToken();
+        $tokenRepository->delete($token);
+        $response = new JsonResponse();
+        $response->headers->clearCookie('token');
         return $response;
     }
 }
