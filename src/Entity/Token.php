@@ -9,7 +9,7 @@ use Ramsey\Uuid\Uuid;
 // TODO Add field alias
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TokenRepository")
- * @ORM\Table(name="tokens")
+ * @ORM\Table(name="tokens", indexes={@ORM\Index(name="token_search_idx", columns={"value", "alias"})})
  */
 class Token
 {

@@ -7,7 +7,7 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ItemRepository")
- * @ORM\Table(name="items",
+ * @ORM\Table(name="items", indexes={@ORM\Index(name="item_search_idx", columns={"uuid"})},
  *     uniqueConstraints={@ORM\UniqueConstraint(name="position_unique",
  *          columns={"date", "position", "user_id"})})
  */
