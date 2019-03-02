@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -102,6 +103,9 @@ class UserController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        if ($user->getPermanent()) {
+            throw new AccessDeniedHttpException('You are already registered');
+        }
         $input = [
             'username' => $request->get('username'),
             'password' => $request->get('password'),
