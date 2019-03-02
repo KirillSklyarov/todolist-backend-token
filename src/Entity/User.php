@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 // TODO add index, refactor findOnBy
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @ORM\Table(name="users")
+ * @ORM\Table(name="users", indexes={@ORM\Index(name="user_search_idx", columns={"username"})})
  */
 class User implements UserInterface
 {
