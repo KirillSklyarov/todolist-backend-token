@@ -146,7 +146,10 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
             $this->tokenRepository->delete($token);
             return null;
         }
-
+        $user->setCurrentToken($token);
+        if ($this->request->get('_route') === 'user_logout') {
+            return $user;
+        }
         $ttl = $this->bag->get($user->getPermanent() ? 'token.registered.ttl' : 'token.unregistered.ttl');
         $lastEnterAt = $token->getLastEnterAt();
         $expiredAt = clone $lastEnterAt;
@@ -162,7 +165,6 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
             ->setIp($ip)
             ->setUserAgent($userAgent);
         $this->tokenRepository->update($token);
-        $user->setCurrentToken($token);
         return $user;
     }
 
