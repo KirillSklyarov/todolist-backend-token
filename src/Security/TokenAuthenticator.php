@@ -6,6 +6,7 @@ namespace App\Security;
 
 use App\Entity\Token;
 use App\Entity\User;
+use App\Model\ApiResponse;
 use App\Repository\TokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
@@ -70,11 +71,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        $data = [
-            'success' => false,
-            'message' => 'Authenticate is required',
-        ];
-        $response = new JsonResponse($data, 401);
+        $response = new ApiResponse(null, false, 'Authenticate is required', 401);
         return $response;
     }
 
@@ -162,8 +159,8 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
         $ip = $this->request->getClientIp();
         $userAgent = $this->request->headers->get('user-agent');
         $token->setLastEnterAt($now)
-            ->setIp(\mb_substr($ip, 0, 39))
-            ->setUserAgent(\mb_substr($userAgent, 0, 255));
+            ->setIp($ip)
+            ->setUserAgent($userAgent);
         $this->tokenRepository->update($token);
         $user->setCurrentToken($token);
         return $user;
@@ -206,10 +203,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $data = [
-            'message' => 'fuck',
-        ];
-        $response = new JsonResponse($data, 401);
+        $response = new ApiResponse(null, false, 'fuck', 401);
         return $response;
     }
 

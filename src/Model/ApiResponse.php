@@ -20,7 +20,7 @@ class ApiResponse extends JsonResponse
     private $apiData;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $message;
 
@@ -38,8 +38,8 @@ class ApiResponse extends JsonResponse
      * @param array $headers
      */
     public function __construct($apiData = null,
-                                ?string $message = null,
                                 bool $success = true,
+                                string $message = '',
                                 int $status = 200,
                                 array $headers = [])
     {
@@ -68,18 +68,18 @@ class ApiResponse extends JsonResponse
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getMessage(): ?string
+    public function getMessage(): string
     {
         return $this->message;
     }
 
     /**
-     * @param string|null $message
+     * @param string $message
      * @return ApiResponse
      */
-    public function setMessage(?string $message): ApiResponse
+    public function setMessage(string $message): ApiResponse
     {
         $this->message = $message;
         return $this;

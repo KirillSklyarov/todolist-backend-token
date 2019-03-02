@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Token;
 use App\Entity\User;
+use App\Model\ApiResponse;
 use App\Repository\TokenRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -76,7 +77,7 @@ class UserController extends AbstractController
             ->setUsername(Uuid::uuid4()->toString())
             ->addToken($token);
         $userRepository->create($user);
-        $response = new JsonResponse();
+        $response = new ApiResponse();
         $ttl = $this->getParameter('token.unregistered.ttl');
         $createdAt = $token->getCreatedAt();
         $expire = clone $createdAt;
@@ -131,7 +132,7 @@ class UserController extends AbstractController
             ->setRegisteredAt($lastEnterAt)
             ->setUpdatedAt($lastEnterAt);
         $userRepository->update($user);
-        $response = new JsonResponse();
+        $response = new ApiResponse();
         $ttl = $this->getParameter('token.unregistered.ttl');
         $expire = clone $lastEnterAt;
         $expire->add(new \DateInterval($ttl));
@@ -152,7 +153,7 @@ class UserController extends AbstractController
         $user = $this->getUser();
         $token = $user->getCurrentToken();
         $tokenRepository->delete($token);
-        $response = new JsonResponse();
+        $response = new ApiResponse();
         $response->headers->clearCookie('token');
         return $response;
     }

@@ -4,7 +4,7 @@
 namespace App\Security;
 
 
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Model\ApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -24,11 +24,7 @@ class AuthenticationFailureHandler implements AuthenticationFailureHandlerInterf
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $data = [
-            'success' => false,
-            'message' => 'Wrong username or password!!!!111',
-        ];
-        $response = new JsonResponse($data, 401);
+        $response = new ApiResponse(null, false, 'Wrong username or password___', 401);
 
         return $response;
     }

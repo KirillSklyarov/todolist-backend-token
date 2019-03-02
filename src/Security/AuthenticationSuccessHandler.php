@@ -6,6 +6,7 @@ namespace App\Security;
 
 use App\Entity\Token;
 use App\Entity\User;
+use App\Model\ApiResponse;
 use App\Repository\TokenRepository;
 use App\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
@@ -75,11 +76,7 @@ class AuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterf
         $user->addToken($token);
         $user->setCurrentToken($token);
         $this->userRepository->update($user);
-        $data = [
-            'success' => true,
-            'message' => 'oh, yeah!',
-        ];
-        $response = new JsonResponse($data);
+        $response = new ApiResponse(null, true, 'oh, yeah!');
         $ttl = $this->bag->get('token.registered.ttl');
         $expireAt = clone $now;
         $expireAt->add(new \DateInterval($ttl));
