@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
+// TODO Add index, refactor findOnBy
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TokenRepository")
  * @ORM\Table(name="tokens")

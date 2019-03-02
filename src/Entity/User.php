@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
-
+// TODO add index, refactor findOnBy
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="users")
@@ -55,6 +55,21 @@ class User implements UserInterface
      */
     private $permanent = false;
 
+    /**
+     * @ORM\Column(type="datetime", name="created_at")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime", name="registered_at", nullable=true)
+     */
+    private $registeredAt;
+
+    /**
+     * @ORM\Column(type="datetime", name="updated_at", nullable=true)
+     */
+    private $updatedAt;
+
     public function __construct()
     {
         $this->tokens = new ArrayCollection();
@@ -97,6 +112,33 @@ class User implements UserInterface
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @param string $role
+     * @return User
+     */
+    public function addRole(string $role): self
+    {
+        if (!\in_array($role, $this->roles)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $role
+     * @return User
+     */
+    public function removeRole(string $role): self
+    {
+        $index = \array_search($role, $this->roles);
+        if (false !== $index) {
+            \array_splice($this->roles, $index, 1);
+        }
 
         return $this;
     }
@@ -164,6 +206,16 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * @return User
+     */
+    public function clearTokens(): User
+    {
+        $this->tokens->clear();
+
+        return $this;
+    }
+
     public function getPermanent(): bool
     {
         return $this->permanent;
@@ -191,6 +243,42 @@ class User implements UserInterface
     public function setCurrentToken(?Token $currentToken): User
     {
         $this->currentToken = $currentToken;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getRegisteredAt(): ?\DateTime
+    {
+        return $this->registeredAt;
+    }
+
+    public function setRegisteredAt(?\DateTime $registeredAt): self
+    {
+        $this->registeredAt = $registeredAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+
         return $this;
     }
 }
