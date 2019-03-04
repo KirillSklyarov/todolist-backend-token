@@ -180,4 +180,19 @@ class Item
 
         return $this;
     }
+
+    public function toArray(bool $full = false): array
+    {
+        $data = [
+            'uuid' => $this->getUuid(),
+            'position' => $this->getPosition()
+        ];
+        if ($full) {
+            $data['title'] = $this->getTitle();
+            $data['date'] = $this->getDate()->format('c');
+            $data['description'] = $this->getDescription();
+        }
+
+        return $data;
+    }
 }

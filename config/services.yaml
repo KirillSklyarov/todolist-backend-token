@@ -6,6 +6,7 @@
 parameters:
     token.unregistered.ttl: '%env(TOKEN_UNREGISTERED_TTL)%'
     token.registered.ttl: '%env(TOKEN_REGISTERED_TTL)%'
+    items.max.result: '%env(ITEMS_MAX_RESULT)%'
 services:
     # default configuration for services in *this* file
     _defaults:

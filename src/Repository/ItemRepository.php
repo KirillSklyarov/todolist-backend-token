@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Item;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -77,6 +79,59 @@ class ItemRepository extends ServiceEntityRepository
             throw $e;
         }
     }
+
+    /**
+     * @param User $user
+     * @param \DateTime $date
+     * @return mixed
+     * @throws NonUniqueResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getLastPosition(User $user, \DateTime $date)
+    {
+        $qb = $this->createQueryBuilder('item');
+        $qb->select('item.position')
+            ->where($qb->expr()->andX(
+                $qb->expr()->eq('item.user', ':user'),
+                $qb->expr()->eq('item.date', ':date')
+            ))
+            ->setParameters([
+                'user' => $user,
+                'date' => $date
+            ])
+            ->orderBy('item.position', 'desc')
+            ->setMaxResults(1);
+        $query = $qb->getQuery();
+
+        $result = $query->getOneOrNullResult();
+
+        return \is_array($result) ? $result['position'] : $result;
+    }
+
+    /**
+     * @param User $user
+     * @param \DateTime $date
+     * @return int
+     * @throws NonUniqueResultException
+     */
+    public function getCount(User $user, \DateTime $date): int
+    {
+        $qb = $this->createQueryBuilder('item');
+        $qb->select('count(item.id)')
+            ->where($qb->expr()->andX(
+                $qb->expr()->eq('item.date', ':date'),
+                $qb->expr()->eq('item.user', ':user')
+            ))
+            ->setParameters([
+                'user' => $user,
+                'date' => $date
+            ]);
+        $query = $qb->getQuery();
+        $count = $query->getSingleScalarResult();
+
+        return $count;
+    }
+
     // /**
     //  * @return Item[] Returns an array of Item objects
     //  */
