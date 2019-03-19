@@ -93,7 +93,15 @@ class UserController extends AbstractController
         $cookie = new Cookie('token', $token->getValue(), $expire);
         $response = new ApiResponse();
         $response->headers->setCookie($cookie);
-
+        $data = [
+            'username' => $user->getUsername(),
+            'permanent' => $user->getPermanent(),
+            'roles' => $user->getRoles(),
+            'currentToken' => [
+                'alias' => $user->getCurrentToken()->getAlias(),
+            ]
+        ];
+        $response->setApiData($data);
         return $response;
     }
 
@@ -151,6 +159,7 @@ class UserController extends AbstractController
         $expire->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expire);
         $response->headers->setCookie($cookie);
+
         return $response;
     }
 

@@ -127,7 +127,8 @@ class ApiResponse extends JsonResponse
      */
     public function sendContent()
     {
-        $this->setData($this->toArray());
+        $data = $this->toArray();
+        $this->setData($data);
         return parent::sendContent();
     }
 
