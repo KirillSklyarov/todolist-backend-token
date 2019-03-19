@@ -4,14 +4,10 @@
 namespace App\Security;
 
 
-use App\Entity\Token;
-use App\Entity\User;
 use App\Model\ApiResponse;
 use App\Repository\TokenRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,9 +20,9 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 class TokenAuthenticator extends AbstractGuardAuthenticator
 {
     /**
-     * @var Request
+     * @var RequestStack
      */
-    private $request;
+    private $requestStack;
 
     /**
      * @var ParameterBagInterface
@@ -42,7 +38,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
                                 ParameterBagInterface $bag,
                                 TokenRepository $tokenRepository)
     {
-        $this->request = $requestStack->getCurrentRequest();
+        $this->requestStack = $requestStack;
         $this->bag = $bag;
         $this->tokenRepository = $tokenRepository;
     }
@@ -147,7 +143,8 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
             return null;
         }
         $user->setCurrentToken($token);
-        if ($this->request->get('_route') === 'user_logout') {
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request->get('_route') === 'user_logout') {
             return $user;
         }
         $ttl = $this->bag->get($user->getPermanent() ? 'token.registered.ttl' : 'token.unregistered.ttl');
@@ -159,8 +156,8 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
             $this->tokenRepository->delete($token);
             return null;
         }
-        $ip = $this->request->getClientIp();
-        $userAgent = $this->request->headers->get('user-agent');
+        $ip = $request->getClientIp();
+        $userAgent = $request->headers->get('user-agent');
         $token->setLastEnterAt($now)
             ->setIp($ip)
             ->setUserAgent($userAgent);

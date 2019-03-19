@@ -7,11 +7,13 @@ use App\Entity\User;
 use App\Model\ApiResponse;
 use App\Repository\TokenRepository;
 use App\Repository\UserRepository;
-use Ramsey\Uuid\Uuid;
+use App\Security\InitService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -29,6 +31,16 @@ use Symfony\Component\Validator\Validation;
  */
 class UserController extends AbstractController
 {
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    public function __construct(RequestStack $requestStack)
+    {
+        $this->requestStack = $requestStack;
+    }
+
     public function validate(array $input): ConstraintViolationListInterface
     {
         $validator = Validation::createValidator();
@@ -59,30 +71,29 @@ class UserController extends AbstractController
 
     /**
      * @Route("/init", name="user_init", methods={"POST", "OPTIONS"})
-     * @param Request $request
-     * @param UserRepository $userRepository
+     * @param InitService $initService
+     * @param ParameterBagInterface $bag
      * @return \Symfony\Component\HttpFoundation\JsonResponse
-     * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Exception
      */
-    public function init(Request $request, UserRepository $userRepository)
+    public function init(InitService $initService,
+                         ParameterBagInterface $bag)
     {
-        $ip = $request->getClientIp();
-        $userAgent = $request->headers->get('user-agent');
-        $token = (new Token())
-            ->setIp($ip)
-            ->setUserAgent($userAgent);
-        $user = (new User())
-            ->setUsername(Uuid::uuid4()->toString())
-            ->addToken($token);
-        $userRepository->create($user);
-        $response = new ApiResponse();
-        $ttl = $this->getParameter('token.unregistered.ttl');
-        $createdAt = $token->getCreatedAt();
-        $expire = clone $createdAt;
+        $user = $initService->getUser();
+        if ($user === null) {
+            $user = $initService->initUser();
+        }
+
+        $token = $user->getCurrentToken();
+        $ttl = $bag->get($user->getPermanent() ? 'token.registered.ttl' :
+            'token.unregistered.ttl');
+        $lastEnterAt = $token->getLastEnterAt();
+        $expire = clone $lastEnterAt;
         $expire->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expire);
+        $response = new ApiResponse();
         $response->headers->setCookie($cookie);
+
         return $response;
     }
 
