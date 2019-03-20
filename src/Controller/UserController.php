@@ -96,7 +96,6 @@ class UserController extends AbstractController
         $data = [
             'username' => $user->getUsername(),
             'permanent' => $user->getPermanent(),
-            'roles' => $user->getRoles(),
             'currentToken' => [
                 'alias' => $user->getCurrentToken()->getAlias(),
             ]
