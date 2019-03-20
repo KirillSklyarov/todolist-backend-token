@@ -171,18 +171,35 @@ class UserController extends AbstractController
 
     /**
      * @Route("/logout", name="user_logout", methods={"POST", "OPTIONS"})
+     * @param InitService $initService
      * @param TokenRepository $tokenRepository
      * @return JsonResponse
      * @throws \Exception
      */
-    public function logout(TokenRepository $tokenRepository)
+    public function logout(InitService $initService,
+                           TokenRepository $tokenRepository)
     {
         /** @var User $user */
         $user = $this->getUser();
         $token = $user->getCurrentToken();
         $tokenRepository->delete($token);
+
+        $user = $initService->initUser();
+        $token = $user->getCurrentToken();
+        $lastEnterAt = $token->getLastEnterAt();
+        $expire = clone $lastEnterAt;
+        $expire->add(new \DateInterval($ttl));
+        $cookie = new Cookie('token', $token->getValue(), $expire);
         $response = new ApiResponse();
-        $response->headers->clearCookie('token');
+        $response->headers->setCookie($cookie);
+        $data = [
+            'username' => $user->getUsername(),
+            'permanent' => $user->getPermanent(),
+            'currentToken' => [
+                'alias' => $user->getCurrentToken()->getAlias(),
+            ]
+        ];
+        $response->setApiData($data);
         return $response;
     }
 }
