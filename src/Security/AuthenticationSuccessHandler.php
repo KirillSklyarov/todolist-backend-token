@@ -82,7 +82,14 @@ class AuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterf
         $expireAt->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expireAt);
         $response->headers->setCookie($cookie);
-
+        $data = [
+            'username' => $user->getUsername(),
+            'permanent' => $user->getPermanent(),
+            'currentToken' => [
+                'alias' => $user->getCurrentToken()->getAlias(),
+            ]
+        ];
+        $response->setApiData($data);
         return $response;
     }
 }

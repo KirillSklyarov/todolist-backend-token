@@ -158,7 +158,14 @@ class UserController extends AbstractController
         $expire->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expire);
         $response->headers->setCookie($cookie);
-
+        $data = [
+            'username' => $user->getUsername(),
+            'permanent' => $user->getPermanent(),
+            'currentToken' => [
+                'alias' => $user->getCurrentToken()->getAlias(),
+            ]
+        ];
+        $response->setApiData($data);
         return $response;
     }
 
