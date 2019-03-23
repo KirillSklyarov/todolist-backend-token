@@ -70,7 +70,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/init", name="user_init", methods={"POST", "OPTIONS"})
+     * @Route("/init", name="user_init", methods={"POST", "OPTIONS", "GET"})
      * @param InitService $initService
      * @param ParameterBagInterface $bag
      * @return \Symfony\Component\HttpFoundation\JsonResponse
