@@ -173,11 +173,13 @@ class UserController extends AbstractController
      * @Route("/logout", name="user_logout", methods={"POST", "OPTIONS"})
      * @param InitService $initService
      * @param TokenRepository $tokenRepository
+     * @param ParameterBagInterface $bag
      * @return JsonResponse
      * @throws \Exception
      */
     public function logout(InitService $initService,
-                           TokenRepository $tokenRepository)
+                           TokenRepository $tokenRepository,
+                           ParameterBagInterface $bag)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -188,6 +190,8 @@ class UserController extends AbstractController
         $token = $user->getCurrentToken();
         $lastEnterAt = $token->getLastEnterAt();
         $expire = clone $lastEnterAt;
+        $ttl = $bag->get($user->getPermanent() ? 'token.registered.ttl' :
+            'token.unregistered.ttl');
         $expire->add(new \DateInterval($ttl));
         $cookie = new Cookie('token', $token->getValue(), $expire);
         $response = new ApiResponse();
