@@ -70,7 +70,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/init", name="user_init", methods={"POST", "OPTIONS", "GET"})
+     * @Route("/init", name="user_init", methods={"POST", "OPTIONS"})
      * @param InitService $initService
      * @param ParameterBagInterface $bag
      * @return \Symfony\Component\HttpFoundation\JsonResponse
@@ -103,6 +103,38 @@ class UserController extends AbstractController
         $response->setApiData($data);
         return $response;
     }
+
+    /**
+     * @Route("/reinit", name="user_reinit", methods={"POST", "OPTIONS"})
+     * @param InitService $initService
+     * @param ParameterBagInterface $bag
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @throws \Exception
+     */
+    public function reinit(InitService $initService,
+                         ParameterBagInterface $bag)
+    {
+        $user = $initService->initUser();
+
+        $token = $user->getCurrentToken();
+        $ttl = $bag->get('token.unregistered.ttl');
+        $lastEnterAt = $token->getLastEnterAt();
+        $expire = clone $lastEnterAt;
+        $expire->add(new \DateInterval($ttl));
+        $cookie = new Cookie('token', $token->getValue(), $expire);
+        $response = new ApiResponse();
+        $response->headers->setCookie($cookie);
+        $data = [
+            'username' => $user->getUsername(),
+            'permanent' => $user->getPermanent(),
+            'currentToken' => [
+                'alias' => $user->getCurrentToken()->getAlias(),
+            ]
+        ];
+        $response->setApiData($data);
+        return $response;
+    }
+
 
     /**
      * @Route("/register", name="user_regiter", methods={"POST", "OPTIONS"})

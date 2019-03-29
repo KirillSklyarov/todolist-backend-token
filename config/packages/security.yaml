@@ -23,7 +23,10 @@ security:
             pattern:  ^/api/v1/user/init
             stateless: true
             anonymous: true
-
+        reinit:
+            pattern:  ^/api/v1/user/reinit
+            stateless: true
+            anonymous: true
         login:
             pattern:  ^/api/v1/user/login
             stateless: true
@@ -52,6 +55,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/v1/user/init, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/user/reinit, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/v1/user/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         #        - { path: ^/api/v1/user/register, roles: ROLE_UNREGISTRED_USER }
         #        - { path: ^/api/v1/user/logout, roles: ROLE_USER }

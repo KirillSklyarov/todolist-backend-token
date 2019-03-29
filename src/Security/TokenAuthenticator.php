@@ -202,7 +202,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $response = new ApiResponse(null, false, 'fuck', 401);
+        $response = new ApiResponse(null, false, 'Authentication failure', 401);
         return $response;
     }
 
