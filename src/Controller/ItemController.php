@@ -39,7 +39,9 @@ class ItemController extends AbstractController
             ],
             'date' => [
                 new Assert\Date()
-            ]
+            ],
+            'description' => [],
+            'position' => [],
         ];
 
         if(\array_key_exists('description', $input) && $input['description']) {
